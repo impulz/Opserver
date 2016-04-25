@@ -750,14 +750,18 @@ Status.SQL = (function () {
                 Status.popup('sql/active/filters' + window.location.search, null, filterOptions);
             },
             '#/db/': function (val, firstLoad, prev) {
-                var obj = val.indexOf('tables/') > 0 || val.indexOf('views/') > 0
+                var obj = val.indexOf('tables/') > 0 || val.indexOf('views/') || val.indexOf('storedprocedures/') > 0
                           ? val.split('/').pop() : null;
                 function showColumns() {
-                    $('.js-database-table,.js-database-view').removeClass('info').next().hide();
-                    $('[data-table="' + obj + '"],[data-view="' + obj + '"]').addClass('info').next().show(200);
+                    $('.js-next-collapsible').removeClass('info').next().hide();
+                    var cell = $('[data-obj="' + obj + '"]').addClass('info').next().show(200).find('td');
+                    if (cell.length === 1) {
+                        cell.css('max-width', cell.closest('.js-database-modal-right').width());
+                    }
                 }
                 if (!firstLoad) {
-                    if ((/\/tables/.test(val) && /\/tables/.test(prev)) || (/\/views/.test(val) && /\/views/.test(prev))) {
+                    // TODO: Generalize this to not need the replace? Possibly a root load in the modal
+                    if ((/\/tables/.test(val) && /\/tables/.test(prev)) || (/\/views/.test(val) && /\/views/.test(prev)) || (/\/storedprocedures/.test(val) && /\/storedprocedures/.test(prev))) {
                         showColumns();
                         return;
                     }
@@ -828,8 +832,8 @@ Status.SQL = (function () {
             return false;
         }).on('click', '.ag-node', function() {
             window.location.hash = $('.ag-node-name a', this)[0].hash;
-        }).on('click', '.js-database-table,.js-database-view', function () {
-            window.location.hash = window.location.hash.replace(/\/tables\/.*/, '/tables').replace(/\/views\/.*/, '/views');
+        }).on('click', '.js-next-collapsible', function () {
+            window.location.hash = window.location.hash.replace(/\/tables\/.*/, '/tables').replace(/\/views\/.*/, '/views').replace(/\/storedprocedures\/.*/, '/storedprocedures');
         });
     }
 
@@ -2057,10 +2061,10 @@ Status.HAProxy = (function () {
                 brush2.extent(x.domain())(bottomBrushArea);
 
                 if (options.showBuilds && !data.builds) {
-                    $.getJSON(Status.options.rootPath + 'graph/builds/json', params, function (bData) {
-                        postProcess(bData);
-                        drawBuilds(bData);
-                    });
+                    //$.getJSON(Status.options.rootPath + 'graph/builds/json', params, function (bData) {
+                    //    postProcess(bData);
+                    //    drawBuilds(bData);
+                    //});
                 }
             }
 
