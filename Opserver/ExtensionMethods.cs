@@ -54,7 +54,7 @@ namespace StackExchange.Opserver
                     return s.HtmlEncode().AsHtml();
             }
         }
-        
+
         /// <summary>
         /// Returns an icon span representation of this MonitorStatus
         /// </summary>
@@ -193,7 +193,7 @@ namespace StackExchange.Opserver
 
             if (lastSuccess)
                 return mini ? cache.LastSuccess?.ToRelativeTimeSpanMini() : cache.LastSuccess?.ToRelativeTimeSpan();
-            
+
             var lf = cache.LastPoll;
             if (lf == null)
                 return MonitorStatus.Warning.Span("Unknown", "No Data Available Yet");
@@ -237,14 +237,14 @@ namespace StackExchange.Opserver
         }
 
         /// <summary>
-        /// returns a html span element with relative time elapsed since this event occurred, eg, "3 months ago" or "yesterday"; 
+        /// returns a html span element with relative time elapsed since this event occurred, eg, "3 months ago" or "yesterday";
         /// assumes time is *already* stored in UTC format!
         /// </summary>
         public static IHtmlString ToRelativeTimeSpan(this DateTime dt, string cssClass = null, bool asPlusMinus = false, DateTime? compareTo = null)
         {
             // TODO: Make this a setting?
             // UTC Time is good for Stack Exchange but many people don't run their servers on UTC
-            compareTo = compareTo ?? DateTime.UtcNow;
+            compareTo = compareTo ?? DateTime.Now;
             return $@"<span title=""{dt.ToString("u")}"" class=""js-relative-time {cssClass}"">{dt.ToRelativeTime(asPlusMinus: asPlusMinus, compareTo: compareTo)}</span>".AsHtml();
         }
 
@@ -305,7 +305,7 @@ namespace StackExchange.Opserver
         }
 
         /// <summary>
-        /// returns AN HTML SPAN ELEMENT with minified relative time elapsed since this event occurred, eg, "3mo ago" or "yday"; 
+        /// returns AN HTML SPAN ELEMENT with minified relative time elapsed since this event occurred, eg, "3mo ago" or "yday";
         /// assumes time is *already* stored in UTC format!
         /// </summary>
         public static IHtmlString ToRelativeTimeSpanMini(this DateTime dt, bool includeTimeForOldDates = true)
@@ -345,7 +345,7 @@ namespace StackExchange.Opserver
         {
             if (number >= 1000000)
                 return ((double)number / 1000000).ToString("0.0m");
-            
+
             if (number >= 1000)
                 return ((double)number / 1000).ToString("0k");
 
@@ -378,9 +378,9 @@ namespace StackExchange.Opserver
         {
             return value ? YesHtml : NoHtml;
         }
-        
+
         /// <summary>
-        /// Micro representation of a time in millisecs 
+        /// Micro representation of a time in millisecs
         /// </summary>
         public static IHtmlString MicroUnit(this long unit)
         {
@@ -477,7 +477,7 @@ namespace StackExchange.Opserver
                 };
         }
     }
-    
+
     public static class EnumExtensions
     {
         public static IHtmlString ToSpan(this SynchronizationStates? state, string tooltip = null)

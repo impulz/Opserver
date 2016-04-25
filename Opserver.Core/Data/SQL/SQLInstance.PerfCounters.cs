@@ -74,7 +74,7 @@ Select cc.object_name ObjectName,
        cc.counter_name CounterName,
        cc.instance_name InstanceName,
        cc.cntr_value CurrentValue,
-       (Case cc.cntr_type 
+       (Case cc.cntr_type
         When 65792 Then cc.cntr_value -- Count
         When 537003264 Then IsNull(Cast(cc.cntr_value as Money) / NullIf(cbc.cntr_value, 0), 0) -- Ratio
         When 272696576 Then cc.cntr_value - pc.cntr_value -- Per Second
@@ -90,12 +90,12 @@ Select cc.object_name ObjectName,
                   When cc.object_name = 'SQLServer:FileTable' Then Replace(cc.counter_name, 'Avg ','') + ' base'
                   When cc.counter_name = 'Worktables From Cache Ratio' Then 'Worktables From Cache Base'
                   When cc.counter_name = 'Avg. Length of Batched Writes' Then 'Avg. Length of Batched Writes BS'
-                  Else cc.counter_name + ' base' 
+                  Else cc.counter_name + ' base'
              End) = cbc.counter_name
         And cc.instance_name = cbc.instance_name
         And cc.cntr_type In (537003264, 1073874176)
         And cbc.cntr_type = 1073939712
-       Join @PCounters pc 
+       Join @PCounters pc
          On cc.object_name = pc.object_name
         And cc.counter_name = pc.counter_name
         And cc.instance_name = pc.instance_name
@@ -107,7 +107,7 @@ Select cc.object_name ObjectName,
                   When pc.object_name = 'SQLServer:FileTable' Then Replace(pc.counter_name, 'Avg ','') + ' base'
                   When pc.counter_name = 'Worktables From Cache Ratio' Then 'Worktables From Cache Base'
                   When pc.counter_name = 'Avg. Length of Batched Writes' Then 'Avg. Length of Batched Writes BS'
-                  Else pc.counter_name + ' base' 
+                  Else pc.counter_name + ' base'
              End) = pbc.counter_name
         And pc.cntr_type In (537003264, 1073874176)
         And pbc.cntr_type = 1073939712";
