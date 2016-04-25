@@ -14,7 +14,6 @@ using StackExchange.Opserver.Data;
 using StackExchange.Opserver.Helpers;
 using StackExchange.Profiling;
 using StackExchange.Redis;
-using TeamCitySharp.DomainEntities;
 
 namespace StackExchange.Opserver
 {
@@ -40,10 +39,12 @@ namespace StackExchange.Opserver
         /// <summary>
         /// Returns the toReturn parameter when this string is null/empty.
         /// </summary>
-        public static string IsNullOrEmptyReturn(this string s, string toReturn) =>
-            s.HasValue()
-                ? s
-                : (toReturn.HasValue() ? toReturn : "");
+        public static string IsNullOrEmptyReturn(this string s, string toReturn) => s.HasValue() ? s : toReturn;
+
+        /// <summary>
+        /// Returns null for an empty string. For use in places like attributes that need not render with no content
+        /// </summary>
+        public static string Nullify(this string s) => s.IsNullOrEmptyReturn(null);
 
         /// <summary>
         /// If this string ends in "toTrim", this will trim it once off the end
@@ -84,6 +85,7 @@ namespace StackExchange.Opserver
                     ? item.Remove(item.Length - 1) + "ies"
                     : item.EndsWith("s")
                         ? item.Remove(item.Length - 1) + "es"
+                        : item.EndsWith("ex")? item+"es"
                         : item + "s");
         }
 
@@ -94,8 +96,8 @@ namespace StackExchange.Opserver
         {
             var numString = includeNumber ? number.ToComma() + " " : "";
             return number == 1
-                       ? numString + item
-                       : numString + (item.EndsWith("y") ? item.Remove(item.Length - 1) + "ies" : item + "s");
+                ? numString + item
+                : numString + (item.EndsWith("y") ? item.Remove(item.Length - 1) + "ies" : item + "s");
         }
 
         /// <summary>
@@ -182,35 +184,17 @@ namespace StackExchange.Opserver
             return result.Value;
         }
 
-        public static MonitorStatus GetWorstStatus(this IEnumerable<MonitorStatus> ims)
-        {
-            return ims.OrderByDescending(i => i).FirstOrDefault();
-        }
+        public static MonitorStatus GetWorstStatus(this IEnumerable<MonitorStatus> ims) => ims.OrderByDescending(i => i).FirstOrDefault();
 
-        public static IOrderedEnumerable<T> OrderByWorst<T>(this IEnumerable<T> ims) where T : IMonitorStatus
-        {
-            return OrderByWorst(ims, i => i.MonitorStatus);
-        }
+        public static IOrderedEnumerable<T> OrderByWorst<T>(this IEnumerable<T> ims) where T : IMonitorStatus => OrderByWorst(ims, i => i.MonitorStatus);
 
-        public static IOrderedEnumerable<T> OrderByWorst<T>(this IEnumerable<T> ims, Func<T,MonitorStatus> getter)
-        {
-            return ims.OrderByDescending(getter);
-        }
+        public static IOrderedEnumerable<T> OrderByWorst<T>(this IEnumerable<T> ims, Func<T,MonitorStatus> getter) => ims.OrderByDescending(getter);
 
-        public static IOrderedEnumerable<T> ThenByWorst<T>(this IOrderedEnumerable<T> ims) where T : IMonitorStatus
-        {
-            return ThenByWorst(ims, i => i.MonitorStatus);
-        }
+        public static IOrderedEnumerable<T> ThenByWorst<T>(this IOrderedEnumerable<T> ims) where T : IMonitorStatus => ThenByWorst(ims, i => i.MonitorStatus);
 
-        public static IOrderedEnumerable<T> ThenByWorst<T>(this IOrderedEnumerable<T> ims, Func<T, MonitorStatus> getter)
-        {
-            return ims.ThenByDescending(getter);
-        }
+        public static IOrderedEnumerable<T> ThenByWorst<T>(this IOrderedEnumerable<T> ims, Func<T, MonitorStatus> getter) => ims.ThenByDescending(getter);
 
-        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source)
-        {
-            return new HashSet<T>(source);
-        }
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source) => new HashSet<T>(source);
 
         /// <summary>
         /// Returns a unix Epoch time given a Date
@@ -224,10 +208,7 @@ namespace StackExchange.Opserver
         /// <summary>
         /// Converts to Date given an Epoch time
         /// </summary>
-        public static DateTime ToDateTime(this long epoch)
-        {
-            return new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(epoch);
-        }
+        public static DateTime ToDateTime(this long epoch) => new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(epoch);
 
         /// <summary>
         /// Returns a humanized string indicating how long ago something happened, eg "3 days ago".
@@ -378,32 +359,15 @@ namespace StackExchange.Opserver
         /// <summary>
         /// Converts a raw long into a readable size
         /// </summary>
-        public static string ToHumanReadableSize(this long size)
-        {
-            return string.Format(new FileSizeFormatProvider(), "{0:fs}", size);
-        }
+        public static string ToHumanReadableSize(this long size) => string.Format(new FileSizeFormatProvider(), "{0:fs}", size);
 
-        public static string ToComma(this int? number, string valueIfZero = null)
-        {
-            return number.HasValue ? ToComma(number.Value, valueIfZero) : "";
-        }
+        public static string ToComma(this int? number, string valueIfZero = null) => number.HasValue ? ToComma(number.Value, valueIfZero) : "";
 
-        public static string ToComma(this int number, string valueIfZero = null)
-        {
-            if (number == 0 && valueIfZero != null) return valueIfZero;
-            return number.ToString("n0");
-        }
+        public static string ToComma(this int number, string valueIfZero = null) => number == 0 && valueIfZero != null ? valueIfZero : number.ToString("n0");
 
-        public static string ToComma(this long? number, string valueIfZero = null)
-        {
-            return number.HasValue ? ToComma(number.Value, valueIfZero) : "";
-        }
+        public static string ToComma(this long? number, string valueIfZero = null) => number.HasValue ? ToComma(number.Value, valueIfZero) : "";
 
-        public static string ToComma(this long number, string valueIfZero = null)
-        {
-            if (number == 0 && valueIfZero != null) return valueIfZero;
-            return number.ToString("n0");
-        }
+        public static string ToComma(this long number, string valueIfZero = null) => number == 0 && valueIfZero != null ? valueIfZero : number.ToString("n0");
 
         public static string ToTimeStringMini(this TimeSpan span, int maxElements = 2)
         {
@@ -440,14 +404,11 @@ namespace StackExchange.Opserver
         /// <summary>
         /// Does a Step with the location of caller as the label.
         /// </summary>
-        public static IDisposable StepHere(
-            this MiniProfiler profiler,
+        public static IDisposable StepHere(this MiniProfiler profiler,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string sourceFilePath = "",
-            [CallerLineNumber] int sourceLineNumber = 0)
-        {
-            return profiler?.Step($"{memberName} - {Path.GetFileName(sourceFilePath)}:{sourceLineNumber.ToString()}");
-        }
+            [CallerLineNumber] int sourceLineNumber = 0) =>
+                profiler?.Step($"{memberName} - {Path.GetFileName(sourceFilePath)}:{sourceLineNumber.ToString()}");
 
         private static readonly ConcurrentDictionary<string, object> _getSetNullLocks = new ConcurrentDictionary<string, object>();
 
@@ -483,21 +444,16 @@ namespace StackExchange.Opserver
         }
 
         // called by a winner of CompeteToLoad, to make it so the next person to call CompeteToLoad will get true
-        private static void ReleaseCompeteLock(LocalCache cache, string key)
-        {
-            cache.Remove(key + "-cload");
-        }
+        private static void ReleaseCompeteLock(LocalCache cache, string key) => cache.Remove(key + "-cload");
 
         private static int totalGetSetSync, totalGetSetAsyncSuccess, totalGetSetAsyncError;
         /// <summary>
         /// Indicates how many sync (first), async-success (second) and async-error (third) GetSet operations have been completed
         /// </summary>
-        public static Tuple<int, int, int> GetGetSetStatistics()
-        {
-            return Tuple.Create(Interlocked.CompareExchange(ref totalGetSetSync, 0, 0),
+        public static Tuple<int, int, int> GetGetSetStatistics() =>
+            Tuple.Create(Interlocked.CompareExchange(ref totalGetSetSync, 0, 0),
                 Interlocked.CompareExchange(ref totalGetSetAsyncSuccess, 0, 0),
                 Interlocked.CompareExchange(ref totalGetSetAsyncError, 0, 0));
-        }
 
         /// <summary>
         /// 
@@ -608,17 +564,6 @@ namespace StackExchange.Opserver
 
     public static class ThirdPartyExtensionMethods
     {
-        public static string NiceName(this Build b)
-        {
-            var config = BuildStatus.GetConfig(b.BuildTypeId);
-            return config != null ? config.Name : "Unknown build config";
-        }
-        public static string NiceProjectName(this Build b)
-        {
-            var config = BuildStatus.GetConfig(b.BuildTypeId);
-            return config != null ? config.ProjectName : "Unknown build config";
-        }
-
         private static readonly Regex _traceRegex = new Regex(@"(.*).... \((\d+) more bytes\)$", RegexOptions.Compiled);
         public static string TraceDescription(this CommandTrace trace, int? truncateTo = null)
         {

@@ -28,7 +28,7 @@
         <tbody>
             @foreach (var t in tables.Data.OrderBy(t => t.SchemaName).ThenBy(t => t.TableName))
             {
-                <tr data-table="@(t.SchemaName).@(t.TableName)" class="js-database-table" title="@(t.SchemaName).@(t.TableName) created @t.CreationDate">
+                <tr data-obj="@(t.SchemaName).@(t.TableName)" class="js-next-collapsible" title="@(t.SchemaName).@(t.TableName) created @t.CreationDate">
                     <td>
                         <a href="#/db/@(Model.Database)/tables/@(t.SchemaName).@(t.TableName)">
                             <span class="text-muted">@(t.SchemaName).</span><span>@t.TableName</span>
@@ -68,7 +68,7 @@
             {
                 <tr>
                     <td colspan="6">
-                        <div class="none-active">There aren't any tables in this database.</div>
+                        <div class="no-content">There aren't any tables in this database.</div>
                     </td>
                 </tr>
             }
